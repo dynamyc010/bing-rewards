@@ -1,4 +1,4 @@
-import puppeteer, { type Protocol, type Page } from "puppeteer";
+import puppeteer, { type Protocol } from "puppeteer";
 import fs from "fs";
 import cron from "node-cron";
 import launchLogin from "./login";
@@ -22,7 +22,8 @@ async function main() {
 
     const cookies = JSON.parse(fs.readFileSync("session.json").toString()) as Protocol.Network.Cookie[];
 
-    const browser = await puppeteer.launch({});
+    const browser = await puppeteer.launch();
+    browser.pages().then(pages => pages.forEach(page => page.close())); // close all pages that were opened by default
     const page = await browser.newPage();
 
     // make bing think we're using edge
@@ -37,13 +38,13 @@ async function main() {
 
     const argv = process.argv.slice(2);
     const cronExp = (argv[0] && cron.validate(argv[0])) ? argv[0] : "0 12 * * *";
-    console.log(`Point collection is scheduled to run according to the following cron expression: (${cronExp})\nYou may use Ctrl+C to stop the script.`);
+    console.log(`Point collection is scheduled to run according to the following cron expression: (${cronExp})\nKeep the script running as long as you want it to operate.\nYou may use Ctrl+C to stop it.`);
 
     cron.schedule(cronExp, async () => { // schedule point collection task
         try {
             await getPoints(page);
         } catch (e) {
-            if (e === "invalid session") {
+            if (e instanceof Error && e.message == "invalid session") {
                 console.error("Session is invalid or expired. Please restart the script and log in again.");
                 if (fs.existsSync("session.json")) fs.rmSync("session.json");
                 process.exit(1);
