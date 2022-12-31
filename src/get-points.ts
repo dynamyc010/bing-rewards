@@ -10,8 +10,8 @@ const requiredSearches: Record<number, number> = {
 export default async function getPoints(authenticatedPage: Page) {
     console.log("Getting today's points...");
 
-    if (!await isSessionValidOnPage(authenticatedPage)) throw new Error("invalid session");
-    
+    if (!(await isSessionValidOnPage(authenticatedPage))) throw new Error("invalid session");
+
     const level = await getLevel(authenticatedPage);
     const numberOfSearches = requiredSearches[level] || 10;
 
@@ -29,27 +29,27 @@ export default async function getPoints(authenticatedPage: Page) {
 }
 
 async function getLevel(authenticatedPage: Page) {
-    await authenticatedPage.goto("https://rewards.bing.com/");
+    await authenticatedPage.goto("https://rewards.bing.com/", { waitUntil: "networkidle0" });
 
     const levelText = await authenticatedPage.waitForSelector("mee-rewards-user-status-banner-profile p.profileDescription");
     if (!levelText) throw new Error("Could not find level text.");
 
-    const level = await levelText?.evaluate(e => e.innerHTML?.split("&nbsp;")[1]);
+    const level = await levelText.evaluate(e => e.innerHTML?.split("&nbsp;")[1]);
     levelText.dispose();
 
     return Number(level);
 }
 
 async function isSessionValidOnPage(page: Page) {
-    await page.goto("https://bing.com/");
+    await page.goto("https://bing.com/", { waitUntil: "networkidle0" });
 
     const container = await page.waitForSelector("aria/Account Rewards and Preferences");
-    if(!container) throw new Error("Could not find login button container.");
+    if (!container) throw new Error("Could not find login button container.");
 
     const nameText = await container.waitForSelector("a#id_l > span#id_n");
-    if(!nameText) throw new Error("Could not find name text.");
-    
-    const username = await nameText.evaluate(e => e.innerHTML);
+    if (!nameText) throw new Error("Could not find name text.");
+
+    const username = await nameText.evaluate(span => span.innerHTML);
 
     container.dispose();
     nameText.dispose();
@@ -60,4 +60,3 @@ async function isSessionValidOnPage(page: Page) {
 async function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-
