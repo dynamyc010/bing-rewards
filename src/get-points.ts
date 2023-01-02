@@ -29,7 +29,7 @@ export default async function getPoints(authenticatedPage: Page) {
 }
 
 async function getLevel(authenticatedPage: Page) {
-    await authenticatedPage.goto("https://rewards.bing.com/", { waitUntil: "networkidle0" });
+    await authenticatedPage.goto("https://rewards.bing.com/", { waitUntil: "networkidle2" });
 
     const levelText = await authenticatedPage.waitForSelector("mee-rewards-user-status-banner-profile p.profileDescription");
     if (!levelText) throw new Error("Could not find level text.");
@@ -41,7 +41,7 @@ async function getLevel(authenticatedPage: Page) {
 }
 
 async function isSessionValidOnPage(page: Page) {
-    await page.goto("https://bing.com/", { waitUntil: "networkidle0" });
+    await page.goto("https://bing.com/", { waitUntil: "networkidle2" });
 
     const nameText = await page.waitForSelector("[aria-label=\"Account Rewards and Preferences\"] > a#id_l > span#id_n");
     if (!nameText) throw new Error("Could not find name text.");
