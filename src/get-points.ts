@@ -1,4 +1,4 @@
-import { type Page } from "puppeteer";
+import type { Page } from "puppeteer";
 import words from "an-array-of-english-words";
 
 // the number of searches required to get the maximum points based on the account level
@@ -34,7 +34,7 @@ async function getLevel(authenticatedPage: Page) {
     const levelText = await authenticatedPage.waitForSelector("mee-rewards-user-status-banner-profile p.profileDescription");
     if (!levelText) throw new Error("Could not find level text.");
 
-    const level = await levelText.evaluate(e => e.innerHTML?.split("&nbsp;")[1]);
+    const level = await authenticatedPage.evaluate(e => e.innerHTML?.split("&nbsp;")[1], levelText);
     levelText.dispose();
 
     return Number(level);
@@ -43,15 +43,11 @@ async function getLevel(authenticatedPage: Page) {
 async function isSessionValidOnPage(page: Page) {
     await page.goto("https://bing.com/", { waitUntil: "networkidle0" });
 
-    const container = await page.waitForSelector("aria/Account Rewards and Preferences");
-    if (!container) throw new Error("Could not find login button container.");
-
-    const nameText = await container.waitForSelector("a#id_l > span#id_n");
+    const nameText = await page.waitForSelector("[aria-label=\"Account Rewards and Preferences\"] > a#id_l > span#id_n");
     if (!nameText) throw new Error("Could not find name text.");
 
-    const username = await nameText.evaluate(span => span.innerHTML);
-
-    container.dispose();
+    const username = await page.evaluate(nt => nt.innerHTML, nameText);
+    
     nameText.dispose();
 
     return username !== "";

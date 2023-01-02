@@ -1,4 +1,5 @@
-import puppeteer, { type Protocol } from "puppeteer";
+import type { Protocol, Browser } from "puppeteer";
+import puppeteer from "./puppeteer-fix";
 import fs from "fs";
 import cron from "node-cron";
 import launchLogin from "./login";
@@ -22,7 +23,7 @@ async function main() {
 
     const cookies = JSON.parse(fs.readFileSync("session.json").toString()) as Protocol.Network.Cookie[];
 
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch() as Browser;
     browser.pages().then(pages => pages.forEach(page => page.close())); // close all pages that were opened by default
     const page = await browser.newPage();
 

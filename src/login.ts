@@ -1,18 +1,20 @@
-import puppeteer, { type Protocol, type Page } from "puppeteer";
+import type { Protocol, Page, PuppeteerLaunchOptions, Browser } from "puppeteer";
+import puppeteer from "./puppeteer-fix";
 
-export default async function login(): Promise<Protocol.Network.Cookie[]> {
-    const viewport = {
-        width: 800,
-        height: 600
-    }
-    const browser = await puppeteer.launch({
+export default async function launchLogin(): Promise<Protocol.Network.Cookie[]> {
+    const launchArgs: PuppeteerLaunchOptions = {
         headless: false,
         devtools: false,
-        defaultViewport: viewport,
-        args: [`--window-size=${viewport.width},${viewport.height+133}`]
-    });
-    browser.pages().then(pages => pages.forEach(page => page.close())); // close all pages that were opened by default
+        defaultViewport: {
+            width: 800,
+            height: 600
+        }
+    }
+    launchArgs.args = [`--window-size=${launchArgs.defaultViewport!.width},${launchArgs.defaultViewport!.height + 133}`];
 
+    let browser = await puppeteer.launch(launchArgs) as Browser;
+
+    browser.pages().then(pages => pages.forEach(page => page.close())); // close all pages that were opened by default
     const page = await browser.newPage();
 
     try {
@@ -30,15 +32,11 @@ function promptLogin(page: Page) {
     return new Promise<void>(async (resolve, reject) => {
         await page.goto("https://bing.com/", { waitUntil: "networkidle2" });
 
-        const container = await page.waitForSelector("aria/Account Rewards and Preferences");
-        if (!container) return reject("Could not find login button container.");
-
-        const signInButton = await container.waitForSelector("a#id_l");
+        const signInButton = await page.waitForSelector("[aria-label=\"Account Rewards and Preferences\"] > a#id_l");
         if (!signInButton) return reject("Could not find login button.");
 
         await signInButton.click(); // navigate to login page
         signInButton.dispose();
-        container.dispose();
 
         page.on("response", e => { // listen for response that happens when login is completed
             if (!e.ok()) return;
