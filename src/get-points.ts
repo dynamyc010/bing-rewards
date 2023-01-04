@@ -13,7 +13,8 @@ export default async function getPoints(authenticatedPage: Page) {
     if (!(await isSessionValidOnPage(authenticatedPage))) throw new Error("invalid session");
 
     const level = await getLevel(authenticatedPage);
-    const numberOfSearches = requiredSearches[level] || 10;
+    const numberOfSearches = Math.floor((requiredSearches[level] || 10) * 1.25);
+    console.log(`Level: ${level}, required searches: ${numberOfSearches} (including a few extra just to be safe)`);
 
     for (let i = 0; i < numberOfSearches; i++) {
         const url = new URL("https://bing.com/search");
