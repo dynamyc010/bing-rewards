@@ -6,6 +6,7 @@ The script must be running **continuously** during the time it is expected to op
 ## Requirements
  - Git *(only for cloning)*
  - **Node & npm** *(or pnpm)*
+ - Chromium *(if running on arm based linux)* **add executable to PATH!**
 
 ## Usage:
  1. choose a nice directory and open the command line
