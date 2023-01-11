@@ -17,7 +17,7 @@ The script must be running **continuously** during the time it is expected to op
 2. `git clone https://github.com/Zsongli/bing-rewards bing-rewards`
 3. `cd bing-rewards`
 4. `npm i`
-5. Rename or copy `.env.template` to `.env` and edit it to your likings
+5. Rename or copy `.env.example` to `.env` and edit it to your likings
    - If you don't want Discord Integration when your token expires, leave `DISCORD_URL` empty
    - You can also set a permanent custom cron expression here
      - cron expression priority is [`argv` > `dotenv` > `fallback`]
