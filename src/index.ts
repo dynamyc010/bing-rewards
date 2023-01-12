@@ -8,7 +8,6 @@ import sendInvalidTokenWebhook from "./send-webhook";
 
 async function main() {
     await import("dotenv/config");
-    sendInvalidTokenWebhook();
     if (!fs.existsSync("session.json")) {
         console.log(`Login required. Launching browser...\nNote: It is recommended to choose "Yes" at the "Stay signed in?" option to avoid having to log in frequently.`);
 
