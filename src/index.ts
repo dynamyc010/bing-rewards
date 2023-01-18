@@ -5,6 +5,7 @@ import cron from "node-cron";
 import launchLogin from "./login";
 import getPoints from "./get-points";
 import sendInvalidTokenWebhook from "./send-webhook";
+import * as agents from './user-agents.json';
 
 async function main() {
     await import("dotenv/config");
@@ -29,11 +30,7 @@ async function main() {
     const page = await browser.newPage();
 
     // make bing think we're using edge
-    await page.setExtraHTTPHeaders({
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Edg/108.0.1462.54",
-        "x-edge-shopping-flag": "1",
-        "sec-ch-ua": `Not?A_Brand";v="8", "Chromium";v="108", "Microsoft Edge";v="108.0.1462.54"`
-    });
+    await page.setExtraHTTPHeaders(agents.edge);
 
     // authenticate using previous login information
     await page.setCookie({ name: "_EDGE_V", value: "1", domain: ".bing.com", path: "/", expires: 2147483647 }, ...cookies);
@@ -41,6 +38,8 @@ async function main() {
     const argv = process.argv.slice(2);
     const cronExp = (argv[0] && cron.validate(argv[0])) ? argv[0] : ((process.env.CRON_EXPRESSION && cron.validate(process.env.CRON_EXPRESSION)) ? process.env.CRON_EXPRESSION : "0 12 * * *");
     console.log(`Point collection is scheduled to run according to the following cron expression: (${cronExp})\nKeep the script running as long as you want it to operate.\nYou may use Ctrl+C to stop it.`);
+
+    await getPoints(page);
 
     cron.schedule(cronExp, async () => { // schedule point collection task
         try {

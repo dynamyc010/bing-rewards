@@ -1,5 +1,6 @@
 import type { Page } from "puppeteer";
 import words from "an-array-of-english-words";
+import * as agents from './user-agents.json';
 
 // the number of searches required to get the maximum points based on the account level
 const requiredSearches: Record<number, number> = {
@@ -9,6 +10,9 @@ const requiredSearches: Record<number, number> = {
 
 export default async function getPoints(authenticatedPage: Page) {
     console.log("Getting today's points...");
+
+    // Make sure HTTP headers are from Edge
+    await authenticatedPage.setExtraHTTPHeaders(agents.edge);
 
     if (!(await isSessionValidOnPage(authenticatedPage))) throw new Error("invalid session");
 
@@ -24,6 +28,21 @@ export default async function getPoints(authenticatedPage: Page) {
         console.log(`(#${i + 1}) Searching for ${randomWord}...`);
         await authenticatedPage.goto(url.toString());
         await sleep(5000);
+    }
+    if(level === 2){
+        console.log(`Required mobile searches: 25 (including a few extra just to be safe)`);
+        // Set mobile HTTP headers
+        await authenticatedPage.setExtraHTTPHeaders(agents.mobile);
+
+        for(let i = 0; i < 25; i++){
+            const url = new URL("https://bing.com/search");
+            const randomWord = words[Math.floor(Math.random() * words.length)];
+            url.searchParams.set("q", randomWord);
+    
+            console.log(`(#m${i + 1}) Searching for ${randomWord}...`);
+            await authenticatedPage.goto(url.toString());
+            await sleep(5000);
+        }
     }
 
     console.log("Got the points.");
