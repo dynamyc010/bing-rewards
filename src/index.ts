@@ -5,7 +5,6 @@ import cron from "node-cron";
 import launchLogin from "./login";
 import getPoints from "./get-points";
 import sendInvalidTokenWebhook from "./send-webhook";
-import * as agents from './user-agents.json';
 
 async function main() {
     await import("dotenv/config");
@@ -28,9 +27,6 @@ async function main() {
     const browser = await puppeteer.launch() as Browser;
     browser.pages().then(pages => pages.forEach(page => page.close())); // close all pages that were opened by default
     const page = await browser.newPage();
-
-    // make bing think we're using edge
-    await page.setExtraHTTPHeaders(agents.edge);
 
     // authenticate using previous login information
     await page.setCookie({ name: "_EDGE_V", value: "1", domain: ".bing.com", path: "/", expires: 2147483647 }, ...cookies);
