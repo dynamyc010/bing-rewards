@@ -5,7 +5,7 @@ import * as agents from './user-agents.json';
 // the number of searches required to get the maximum points based on the account level
 const requiredSearches: Record<number, number> = {
     1: 10,
-    2: 50,
+    2: 30,
 };
 
 export default async function getPoints(authenticatedPage: Page) {
