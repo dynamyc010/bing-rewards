@@ -32,10 +32,9 @@ async function main() {
     await page.setCookie({ name: "_EDGE_V", value: "1", domain: ".bing.com", path: "/", expires: 2147483647 }, ...cookies);
 
     const argv = process.argv.slice(2);
-    const cronExp = (argv[0] && cron.validate(argv[0])) ? argv[0] : ((process.env.CRON_EXPRESSION && cron.validate(process.env.CRON_EXPRESSION)) ? process.env.CRON_EXPRESSION : "0 12 * * *");
+    const cronExpIndex = argv.findIndex(arg => cron.validate(arg));
+    const cronExp = (cronExpIndex != -1) ? argv[cronExpIndex] : ((process.env.CRON_EXPRESSION && cron.validate(process.env.CRON_EXPRESSION)) ? process.env.CRON_EXPRESSION : "0 12 * * *");
     console.log(`Point collection is scheduled to run according to the following cron expression: (${cronExp})\nKeep the script running as long as you want it to operate.\nYou may use Ctrl+C to stop it.`);
-
-    if(argv.includes("--now")) getPoints(page);
 
     cron.schedule(cronExp, async () => { // schedule point collection task
         try {
@@ -49,7 +48,7 @@ async function main() {
             }
             else console.error("Failed to get points:", e);
         }
-    });
+    }, { runOnInit: argv.includes("--now") });
 
     process.on("beforeExit", async () => await browser.close());
 }
