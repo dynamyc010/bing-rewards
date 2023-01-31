@@ -35,6 +35,8 @@ async function main() {
     const cronExp = (argv[0] && cron.validate(argv[0])) ? argv[0] : ((process.env.CRON_EXPRESSION && cron.validate(process.env.CRON_EXPRESSION)) ? process.env.CRON_EXPRESSION : "0 12 * * *");
     console.log(`Point collection is scheduled to run according to the following cron expression: (${cronExp})\nKeep the script running as long as you want it to operate.\nYou may use Ctrl+C to stop it.`);
 
+    if(argv.includes("--now")) getPoints(page);
+
     cron.schedule(cronExp, async () => { // schedule point collection task
         try {
             await getPoints(page);
