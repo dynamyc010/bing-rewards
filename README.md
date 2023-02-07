@@ -22,7 +22,7 @@ The script must be running **continuously** during the time it is expected to op
    - You can also set a permanent custom cron expression here
      - cron expression priority is [`argv` > `dotenv` > `fallback`]
 6. `npm run build` (use superuser privileges if necessary)
-7. `npm start` or `npm start -- "<cron expression>"` (**do not** use superuser privileges as Chromium does not support root)
+7. `npm start` or `npm start -- "[cron expression]" [--now]` (**do not** use superuser privileges as Chromium does not support root)
 8. Follow the instructions in the console
 
 
